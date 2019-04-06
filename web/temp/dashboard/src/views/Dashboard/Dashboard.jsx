@@ -40,7 +40,8 @@ import {
 import * as d3 from "d3";
 import dashboardStyle from "../../assets/jss/material-dashboard-react/views/dashboardStyle.jsx";
 import axios from "axios";
-import $ from "jquery";
+import {token} from '../../variables/general.jsx'
+import raw from '../../variables/data.jsx'
 let Chartist = require("chartist");
 
 class Dashboard extends React.Component {
@@ -56,7 +57,7 @@ class Dashboard extends React.Component {
         lineSmooth: Chartist.Interpolation.cardinal({
           tension: 0
         }),
-        low: 0,
+        low: -100,
         high: 300, // creative tim: we recommend you to set the high sa the biggest value + something for a better look
         chartPadding: {
           top: 0,
@@ -68,19 +69,20 @@ class Dashboard extends React.Component {
       animation: {
         draw: function(data) {
           if (data.type === "line" || data.type === "area") {
-            // data.element.animate({
-            //   d: {
-            //     begin: 600,
-            //     dur: 700,
-            //     from: data.path
-            //       .clone()
-            //       .scale(1, 0)
-            //       .translate(0, data.chartRect.height())
-            //       .stringify(),
-            //     to: data.path.clone().stringify(),
-            //     easing: Chartist.Svg.Easing.easeOutQuint
-            //   }
-            // });
+            data.element.animate({
+              d: {
+                begin: 500,
+                dur: 10,
+                from: data.path
+                  .clone()
+                  .scale(1, 0)
+                  .translate(0, data.chartRect.width())
+                  .stringify(),
+                to: data.path.clone().stringify(),
+                easing: Chartist.Svg.Easing.easeOutQuint
+                // easing: Chartist.Svg.Easing.easeInSine
+              }
+            });
           } else if (data.type === "point") {
             // data.element.animate({
             //   opacity: {
@@ -143,18 +145,25 @@ class Dashboard extends React.Component {
     //       .attr("font-family", "monospace")
     //
     //   });
-    const token = "ya29.GqQB4wa7ugZUP8P_3czocPxVIoUH_j6ViSs8B63HP5TzFu3fd_zyUgR_PIQ_UsHeKsLpkokvyuxhdUrb3UI6irym2COlwCIJWlil-jaCatYRCwci9D5Cp1FDe9Pm4kLTGbG18ElNlEf1X5tVAE0BQF3Yn799Vm03jbGaCVpaiQibo-etUpY8st0HkS4QQc-e48ul-koNaK9wGPKKYby8LP8812gI8nk";
+    // const token = "ya29.GqQB4waqlZ2LY2XAii5KOkeNdoRLIV6C4bG8ipqiJlMiIvpk7OebmoS-PRWBXLdnvqKO_zWaIfx6lHKmIrsQwpqgABdE2sK6CRLmfmrmLQRhjvI_g-Are1-E4cw9KMrEb1GJwbA23VrKkLspj5jYubByVX3oERROkup5P3k6sSkIzcyui" +
+    //   "QxV-qEvrqHUS8XR_LH8s08NKQY74w--evlxVrer0WVf4Wk";
     const config = {
       headers: {
         "Authorization": "Bearer " + token,
-        "cache-control": "no-cache",
+        "cache-control": "no-cache"
         // "Access-Control-Allow-Origin": "*",
       }
     };
-
+    let ls = [];
+    for (let i = 0; i < 100; i++) {
+      let temp = [];
+      temp.push(Math.floor((Math.random() * 100) + 1));
+      ls.push(temp);
+    }
+    // console.log(ls);
     const bodyParameters = {
       "signature_name": "serving_default",
-      "instances": [{ "X": [[0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0]] }]
+      "instances": [{ "X": ls }]
     };
 
     axios.post(
@@ -162,27 +171,37 @@ class Dashboard extends React.Component {
       bodyParameters,
       config
     ).then((response) => {
-      console.log(response);
+
+      let ar = response.data.predictions[0].outputs.flat();
+      console.log(ar);
+      // console.log(ar.flat());
+      let temp = this.state.data;
+      temp.data.series[0] = ar;
+      console.log(temp)
+      this.setState({
+        data: temp
+      });
+      console.log(this.state)
     }).catch((error) => {
       console.log(error);
     });
-    d3.json("https://swapi.co/api/people/" + this.state.curCount).then((res) => {
-      // this.curCount++;
-      // console.log(this.curCount);
-      let temp = this.state.data;
-      // temp.data.labels.push(res.name)
-      temp.data.series[0].push(res.height);
-      console.log(temp);
-      this.setState({
-        data: temp,
-        curCount: this.state.curCount + 1
-      });
-      console.log(this.state);
-      // d.push(res);
-      // drawChart(d);
-    }).catch(reason => {
-      console.error(reason);
-    });
+    // d3.json("https://swapi.co/api/people/" + this.state.curCount).then((res) => {
+    //   // this.curCount++;
+    //   // console.log(this.curCount);
+    //   let temp = this.state.data;
+    //   // temp.data.labels.push(res.name)
+    //   temp.data.series[0].push(res.height);
+    //   // console.log(temp);
+    //   this.setState({
+    //     data: temp,
+    //     curCount: this.state.curCount + 1
+    //   });
+    //   // console.log(this.state);
+    //   // d.push(res);
+    //   // drawChart(d);
+    // }).catch(reason => {
+    //   console.error(reason);
+    // });
   };
 
   render() {
