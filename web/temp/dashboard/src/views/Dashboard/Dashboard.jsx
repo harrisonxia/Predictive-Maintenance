@@ -29,17 +29,18 @@ import CardHeader from "../../components/Card/CardHeader.jsx";
 import CardIcon from "../../components/Card/CardIcon.jsx";
 import CardBody from "../../components/Card/CardBody.jsx";
 import CardFooter from "../../components/Card/CardFooter.jsx";
-import Bar from "../../components/bars.jsx";
+// import Bar from "../../components/bars.jsx";
 
 import { bugs, website, server } from "../../variables/general.jsx";
 import Button from "../../components/CustomButtons/Button";
 import {
-  // dailySalesChart,
-  emailsSubscriptionChart,
-  completedTasksChart
+  dailySalesChart,
+  emailsSubscriptionChart
 } from "../../variables/charts.jsx";
 import * as d3 from "d3";
 import dashboardStyle from "../../assets/jss/material-dashboard-react/views/dashboardStyle.jsx";
+import axios from "axios";
+import $ from "jquery";
 let Chartist = require("chartist");
 
 class Dashboard extends React.Component {
@@ -104,18 +105,79 @@ class Dashboard extends React.Component {
   };
   //
   setBgChartData = () => {
+    // let settings = {
+    //   "async": true,
+    //   "crossDomain": true,
+    //   "url": "https://ml.googleapis.com/v1/projects/sacred-cirrus-236720/models/iotcmpt733:predict",
+    //   "method": "POST",
+    //   "headers": {
+    //     "Content-Type": "application/json",
+    //     "Authorization": "Bearer ya29.GqQB4wa7ugZUP8P_3czocPxVIoUH_j6ViSs8B63HP5TzFu3fd_zyUgR_PIQ_UsHeKsLpkokvyuxhdUrb3UI6irym2COlwCIJWlil-jaCatYRCwci9D5Cp1FDe9Pm4kLTGbG18ElNlEf1X5tVAE0BQF3Yn799Vm03jbGaCVpaiQibo-etUpY8st0HkS4QQc-e48ul-koNaK9wGPKKYby8LP8812gI8nk",
+    //     "cache-control": "no-cache"
+    //   },
+    //   "processData": false,
+    //   "data": "{\"signature_name\": \"serving_default\", \"instances\": [{\"X\": [[0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0]]}]}"
+    // }
+    //
+    // $.ajax(settings).done(function (response) {
+    //   console.log(response);
+    // });
+    // d3.json('https://jsonplaceholder.typicode.com/posts', {
+    //   method:"POST",
+    //   body: JSON.stringify({
+    //     title: 'Hello',
+    //     body: '_d3-fetch_ is it',
+    //     userId: 1,
+    //     friends: [2,3,4]
+    //   }),
+    //   headers: {
+    //     "Content-type": "application/json; charset=UTF-8"
+    //   }
+    // })
+    //   .then(json => {
+    //     svg.append("text")
+    //       .text(JSON.stringify(json))
+    //       .attr("y", 200)
+    //       .attr("x", 120)
+    //       .attr("font-size", 16)
+    //       .attr("font-family", "monospace")
+    //
+    //   });
+    const token = "ya29.GqQB4wa7ugZUP8P_3czocPxVIoUH_j6ViSs8B63HP5TzFu3fd_zyUgR_PIQ_UsHeKsLpkokvyuxhdUrb3UI6irym2COlwCIJWlil-jaCatYRCwci9D5Cp1FDe9Pm4kLTGbG18ElNlEf1X5tVAE0BQF3Yn799Vm03jbGaCVpaiQibo-etUpY8st0HkS4QQc-e48ul-koNaK9wGPKKYby8LP8812gI8nk";
+    const config = {
+      headers: {
+        "Authorization": "Bearer " + token,
+        "cache-control": "no-cache",
+        // "Access-Control-Allow-Origin": "*",
+      }
+    };
+
+    const bodyParameters = {
+      "signature_name": "serving_default",
+      "instances": [{ "X": [[0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0]] }]
+    };
+
+    axios.post(
+      "https://ml.googleapis.com/v1/projects/sacred-cirrus-236720/models/iotcmpt733:predict",
+      bodyParameters,
+      config
+    ).then((response) => {
+      console.log(response);
+    }).catch((error) => {
+      console.log(error);
+    });
     d3.json("https://swapi.co/api/people/" + this.state.curCount).then((res) => {
       // this.curCount++;
       // console.log(this.curCount);
-      let temp = this.state.data
+      let temp = this.state.data;
       // temp.data.labels.push(res.name)
-      temp.data.series[0].push(res.height)
-      console.log(temp)
+      temp.data.series[0].push(res.height);
+      console.log(temp);
       this.setState({
         data: temp,
-        curCount: this.state.curCount+1,
-      })
-      console.log(this.state)
+        curCount: this.state.curCount + 1
+      });
+      console.log(this.state);
       // d.push(res);
       // drawChart(d);
     }).catch(reason => {
@@ -134,9 +196,9 @@ class Dashboard extends React.Component {
                 <CardIcon color="warning">
                   <Icon>content_copy</Icon>
                 </CardIcon>
-                <p className={classes.cardCategory}>Used Space</p>
+                <p className={classes.cardCategory}>Anomaly Detection</p>
                 <h3 className={classes.cardTitle}>
-                  49/50 <small>GB</small>
+                  9/10
                 </h3>
               </CardHeader>
               <CardFooter stats>
@@ -145,7 +207,7 @@ class Dashboard extends React.Component {
                     <Warning/>
                   </Danger>
                   <a href="#pablo" onClick={e => e.preventDefault()}>
-                    Get more space
+                    Assign Tickets
                   </a>
                 </div>
               </CardFooter>
@@ -157,8 +219,8 @@ class Dashboard extends React.Component {
                 <CardIcon color="success">
                   <Store/>
                 </CardIcon>
-                <p className={classes.cardCategory}>Revenue</p>
-                <h3 className={classes.cardTitle}>$34,245</h3>
+                <p className={classes.cardCategory}>Machines Status</p>
+                <h3 className={classes.cardTitle}>10/10</h3>
               </CardHeader>
               <CardFooter stats>
                 <div className={classes.stats}>
@@ -180,7 +242,7 @@ class Dashboard extends React.Component {
               <CardFooter stats>
                 <div className={classes.stats}>
                   <LocalOffer/>
-                  Tracked from Github
+                  Tracked this week
                 </div>
               </CardFooter>
             </Card>
@@ -191,8 +253,8 @@ class Dashboard extends React.Component {
                 <CardIcon color="info">
                   <Accessibility/>
                 </CardIcon>
-                <p className={classes.cardCategory}>Followers</p>
-                <h3 className={classes.cardTitle}>+245</h3>
+                <p className={classes.cardCategory}>Workers on site</p>
+                <h3 className={classes.cardTitle}>5</h3>
               </CardHeader>
               <CardFooter stats>
                 <div className={classes.stats}>
@@ -207,14 +269,14 @@ class Dashboard extends React.Component {
           <GridItem xs={12} sm={12} md={6}>
             <Card chart>
               <CardHeader color="success">
-                {/*<ChartistGraph*/}
-                {/*  className="ct-chart"*/}
-                {/*  data={dailySalesChart.data}*/}
-                {/*  type="Line"*/}
-                {/*  options={dailySalesChart.options}*/}
-                {/*  listener={dailySalesChart.animation}*/}
-                {/*/>*/}
-                <div className='grahh'><Bar/></div>
+                <ChartistGraph
+                  className="ct-chart"
+                  data={dailySalesChart.data}
+                  type="Line"
+                  options={dailySalesChart.options}
+                  listener={dailySalesChart.animation}
+                />
+                {/*<div className='grahh'><Bar/></div>*/}
               </CardHeader>
               <CardBody>
                 <h4 className={classes.cardTitle}>Daily Sales</h4>
@@ -277,9 +339,9 @@ class Dashboard extends React.Component {
                 />
               </CardHeader>
               <CardBody>
-                <h4 className={classes.cardTitle}>Completed Tasks</h4>
+                <h4 className={classes.cardTitle}>Live Machine Status</h4>
                 <p className={classes.cardCategory}>
-                  Last Campaign Performance
+                  Live Prediction
                 </p>
               </CardBody>
               <CardFooter chart>

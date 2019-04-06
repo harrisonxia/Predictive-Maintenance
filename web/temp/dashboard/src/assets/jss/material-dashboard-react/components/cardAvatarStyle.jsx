@@ -4,7 +4,7 @@ const cardAvatarStyle = {
   cardAvatar: {
     "&$cardAvatarProfile img": {
       width: "100%",
-      height: "auto"
+      height: "100%"
     }
   },
   cardAvatarProfile: {
