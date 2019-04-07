@@ -1,13 +1,13 @@
 // ##############################
 // // // Tasks for TasksCard - see Dashboard view
 // #############################
-let token = 'ya29.GqUB5Aavkg7HM9X58QvJO0ftjaZ2gnXm5YwGtKGuWOcSWHFDIBFQQSU6xSA_fp3muOUHQMN4z6yg7V6qFFSkz3Zun9tikHsM_wulb9K6jYgV-agD69ylXe06lL19RkCfCpLPl6uCNWFuMt4TTnBIvkUG-bON8NqUGDboWp-ExKPAc7d4I' +
-  'ViM0RwFYziIlkHnRMCSHNuHSBHe7WguBcpJpOfaICe9k2VY'
+let token = 'ya29.GqUB5AZ0w5_yleGjYkl0i_mIE48MMCaEP_yCSbwb8GpJkj2EhYaAOpp00u5MqFKo_0_6dyeu-2yfMubf3c_sTrgeVE_AObkqxgQjMiAO5i7cW4KTNFf6UjSsV1BU26kjWHoLBkwPJWJagSx3WJXf7GKkXlzB4aiyTpXr8baiAXcGpYZ0O' +
+  'sjXe4sKepC1Rrq4R4wH2YMI3x7W8RnX-eGenx5mjUrZNyal'
 let bugs = [
-  'Sign contract for "What are conference organizers afraid of?"',
-  "Lines From Great Russian Literature? Or E-mails From My Boss?",
-  "Flooded: One year later, assessing what was lost and what was found when a ravaging rain swept through metro Detroit",
-  "Create 4 Invisible User Experiences you Never Knew About"
+  'Arm Robot 1 status monthly check"',
+  "Arm Robot 3 motor oil refill",
+  "Arm Robot 2 software update",
+  "Arm Robot 3 status check"
 ];
 let website = [
   "Flooded: One year later, assessing what was lost and what was found when a ravaging rain swept through metro Detroit",

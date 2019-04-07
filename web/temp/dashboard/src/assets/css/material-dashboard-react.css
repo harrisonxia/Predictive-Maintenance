@@ -52,7 +52,25 @@
   display: -webkit-flex;
   display: flex;
 }
+.ct-chart-line {
+  animation: draw 1s 1s ease both;
+}
+.ct-line {
+  animation: draw 1s 1s ease both;
+}
 
+.ct-line {
+  bottom:15%;
+  position:absolute;
+  -webkit-animation:linear infinite alternate;
+  -webkit-animation-name: run;
+  -webkit-animation-duration: 5s;
+}
+@-webkit-keyframes run {
+  0% { left: 0;}
+  50%{ left : 100%;}
+  100%{ left: 0;}
+}
 .ct-label {
   fill: rgba(0, 0, 0, 0.4);
   line-height: 1;

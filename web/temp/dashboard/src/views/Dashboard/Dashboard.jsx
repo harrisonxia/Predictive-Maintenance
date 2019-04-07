@@ -40,14 +40,16 @@ import {
 import * as d3 from "d3";
 import dashboardStyle from "../../assets/jss/material-dashboard-react/views/dashboardStyle.jsx";
 import axios from "axios";
-import {token} from '../../variables/general.jsx'
-import raw from '../../variables/data.jsx'
+import { token } from "../../variables/general.jsx";
+import { raw, shuffleArray } from "../../variables/data.jsx";
+
 let Chartist = require("chartist");
 
 class Dashboard extends React.Component {
   state = {
     value: 0,
     curCount: 1,
+    raw: [],
     data: {
       data: {
         // labels: [],
@@ -58,7 +60,7 @@ class Dashboard extends React.Component {
           tension: 0
         }),
         low: -100,
-        high: 300, // creative tim: we recommend you to set the high sa the biggest value + something for a better look
+        high: 200,
         chartPadding: {
           top: 0,
           right: 0,
@@ -68,31 +70,43 @@ class Dashboard extends React.Component {
       },
       animation: {
         draw: function(data) {
+          // console.log(data)
           if (data.type === "line" || data.type === "area") {
+            console.log(data);
             data.element.animate({
               d: {
-                begin: 500,
-                dur: 10,
+                begin: (data.index + 1) * 80,
+                dur: 600,
                 from: data.path
                   .clone()
                   .scale(1, 0)
-                  .translate(0, data.chartRect.width())
+                  .translate(0, data.chartRect.height())
                   .stringify(),
                 to: data.path.clone().stringify(),
                 easing: Chartist.Svg.Easing.easeOutQuint
-                // easing: Chartist.Svg.Easing.easeInSine
+                //   // easing: Chartist.Svg.Easing.easeInSine
               }
+              // opacity: {
+              //   // The delay when we like to start the animation
+              //   begin: (data.index+1)*80 + 1000,
+              //   // Duration of the animation
+              //   dur: 500,
+              //   // The value where the animation should start
+              //   from: 0,
+              //   // The value where it should end
+              //   to: 1
+              // }
             });
           } else if (data.type === "point") {
-            // data.element.animate({
-            //   opacity: {
-            //     begin: (data.index + 1) * 80,
-            //     dur: 1,
-            //     from: 0,
-            //     to: 1,
-            //     // easing: "ease"
-            //   }
-            // });
+            data.element.animate({
+              opacity: {
+                begin: (data.index + 1) * 20,
+                dur: 1,
+                from: 0,
+                to: 1,
+                easing: "ease"
+              }
+            });
           }
         }
       }
@@ -107,57 +121,29 @@ class Dashboard extends React.Component {
   };
   //
   setBgChartData = () => {
-    // let settings = {
-    //   "async": true,
-    //   "crossDomain": true,
-    //   "url": "https://ml.googleapis.com/v1/projects/sacred-cirrus-236720/models/iotcmpt733:predict",
-    //   "method": "POST",
-    //   "headers": {
-    //     "Content-Type": "application/json",
-    //     "Authorization": "Bearer ya29.GqQB4wa7ugZUP8P_3czocPxVIoUH_j6ViSs8B63HP5TzFu3fd_zyUgR_PIQ_UsHeKsLpkokvyuxhdUrb3UI6irym2COlwCIJWlil-jaCatYRCwci9D5Cp1FDe9Pm4kLTGbG18ElNlEf1X5tVAE0BQF3Yn799Vm03jbGaCVpaiQibo-etUpY8st0HkS4QQc-e48ul-koNaK9wGPKKYby8LP8812gI8nk",
-    //     "cache-control": "no-cache"
-    //   },
-    //   "processData": false,
-    //   "data": "{\"signature_name\": \"serving_default\", \"instances\": [{\"X\": [[0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0], [0.0]]}]}"
-    // }
-    //
-    // $.ajax(settings).done(function (response) {
-    //   console.log(response);
-    // });
-    // d3.json('https://jsonplaceholder.typicode.com/posts', {
-    //   method:"POST",
-    //   body: JSON.stringify({
-    //     title: 'Hello',
-    //     body: '_d3-fetch_ is it',
-    //     userId: 1,
-    //     friends: [2,3,4]
-    //   }),
-    //   headers: {
-    //     "Content-type": "application/json; charset=UTF-8"
-    //   }
-    // })
-    //   .then(json => {
-    //     svg.append("text")
-    //       .text(JSON.stringify(json))
-    //       .attr("y", 200)
-    //       .attr("x", 120)
-    //       .attr("font-size", 16)
-    //       .attr("font-family", "monospace")
-    //
-    //   });
-    // const token = "ya29.GqQB4waqlZ2LY2XAii5KOkeNdoRLIV6C4bG8ipqiJlMiIvpk7OebmoS-PRWBXLdnvqKO_zWaIfx6lHKmIrsQwpqgABdE2sK6CRLmfmrmLQRhjvI_g-Are1-E4cw9KMrEb1GJwbA23VrKkLspj5jYubByVX3oERROkup5P3k6sSkIzcyui" +
-    //   "QxV-qEvrqHUS8XR_LH8s08NKQY74w--evlxVrer0WVf4Wk";
+    if (this.state.raw.length === 0) {
+      shuffleArray(raw);
+      let temp = this.state;
+      temp.raw = raw;
+      this.setState({
+        raw: temp.raw
+      });
+    } else {
+      let temp = this.state.raw.splice(-100, 100);
+    }
+
     const config = {
       headers: {
         "Authorization": "Bearer " + token,
         "cache-control": "no-cache"
-        // "Access-Control-Allow-Origin": "*",
       }
     };
+
     let ls = [];
+    let tempLast10 = this.state.raw.slice(-100);
     for (let i = 0; i < 100; i++) {
       let temp = [];
-      temp.push(Math.floor((Math.random() * 100) + 1));
+      temp.push(tempLast10[i]);
       ls.push(temp);
     }
     // console.log(ls);
@@ -165,7 +151,7 @@ class Dashboard extends React.Component {
       "signature_name": "serving_default",
       "instances": [{ "X": ls }]
     };
-
+    // raw = raw.slice(0, raw.length-10)
     axios.post(
       "https://ml.googleapis.com/v1/projects/sacred-cirrus-236720/models/iotcmpt733:predict",
       bodyParameters,
@@ -173,15 +159,19 @@ class Dashboard extends React.Component {
     ).then((response) => {
 
       let ar = response.data.predictions[0].outputs.flat();
-      console.log(ar);
+      let max = Math.max(...ar);
+      let min = Math.min(...ar);
+      console.log(max, min);
       // console.log(ar.flat());
       let temp = this.state.data;
       temp.data.series[0] = ar;
-      console.log(temp)
+      temp.options.low = min + 20;
+      temp.options.high = max + 20;
+      // console.log(temp);
       this.setState({
         data: temp
       });
-      console.log(this.state)
+      // console.log(this.state);
     }).catch((error) => {
       console.log(error);
     });
@@ -206,6 +196,7 @@ class Dashboard extends React.Component {
 
   render() {
     const { classes } = this.props;
+    // svm.OneClassSVM.fit(this.state.data.data.series)
     return (
       <div>
         <GridContainer>
@@ -285,6 +276,38 @@ class Dashboard extends React.Component {
           </GridItem>
         </GridContainer>
         <GridContainer>
+          <GridItem xs={12} sm={12} md={12}>
+            <Card chart>
+              <CardHeader color="danger">
+                <ChartistGraph
+                  className="ct-chart"
+                  data={this.state.data.data}
+                  type="Line"
+                  options={this.state.data.options}
+                  listener={this.state.data.animation}
+                />
+              </CardHeader>
+              <CardBody>
+                <h4 className={classes.cardTitle}>Live Machine Status</h4>
+                <p className={classes.cardCategory}>
+                  Live Prediction
+                </p>
+              </CardBody>
+              <CardFooter chart>
+                <div className={classes.stats}>
+                  <AccessTime/> last update seconds ago.
+                </div>
+                <Button
+                  tag="label"
+                  className='butt'
+                  color="info"
+                  id="sentReq"
+                  size="sm"
+                  onClick={() => this.setBgChartData()}
+                >click</Button>
+              </CardFooter>
+            </Card>
+          </GridItem>
           <GridItem xs={12} sm={12} md={6}>
             <Card chart>
               <CardHeader color="success">
@@ -298,21 +321,13 @@ class Dashboard extends React.Component {
                 {/*<div className='grahh'><Bar/></div>*/}
               </CardHeader>
               <CardBody>
-                <h4 className={classes.cardTitle}>Daily Sales</h4>
+                <h4 className={classes.cardTitle}>Response Time</h4>
                 <p className={classes.cardCategory}>
                   <span className={classes.successText}>
-                    <ArrowUpward className={classes.upArrowCardCategory}/> 55%
+                    <ArrowUpward className={classes.upArrowCardCategory}/> 27%
                   </span>{" "}
-                  increase in today sales.
+                  increase in response time on average from last week.
                 </p>
-                <Button
-                  tag="label"
-                  className='butt'
-                  color="info"
-                  id="butts"
-                  size="sm"
-                  // onClick={() => this.setBgChartData("data1")}
-                >click</Button>
               </CardBody>
               <CardFooter chart>
                 <div className={classes.stats}>
@@ -334,47 +349,15 @@ class Dashboard extends React.Component {
                 />
               </CardHeader>
               <CardBody>
-                <h4 className={classes.cardTitle}>Email Subscriptions</h4>
+                <h4 className={classes.cardTitle}>Monthly Issues</h4>
                 <p className={classes.cardCategory}>
-                  Last Campaign Performance
+                  Keep tracks of total issues each month.
                 </p>
               </CardBody>
               <CardFooter chart>
                 <div className={classes.stats}>
-                  <AccessTime/> campaign sent 2 days ago
+                  <AccessTime/> updated 10 mins ago.
                 </div>
-              </CardFooter>
-            </Card>
-          </GridItem>
-          <GridItem xs={12} sm={12} md={12}>
-            <Card chart>
-              <CardHeader color="danger">
-                <ChartistGraph
-                  className="ct-chart"
-                  data={this.state.data.data}
-                  type="Line"
-                  options={this.state.data.options}
-                  listener={this.state.data.animation}
-                />
-              </CardHeader>
-              <CardBody>
-                <h4 className={classes.cardTitle}>Live Machine Status</h4>
-                <p className={classes.cardCategory}>
-                  Live Prediction
-                </p>
-              </CardBody>
-              <CardFooter chart>
-                <div className={classes.stats}>
-                  <AccessTime/> campaign sent 2 days ago
-                </div>
-                <Button
-                  tag="label"
-                  className='butt'
-                  color="info"
-                  id="sentReq"
-                  size="sm"
-                  onClick={() => this.setBgChartData()}
-                >click</Button>
               </CardFooter>
             </Card>
           </GridItem>
@@ -426,18 +409,17 @@ class Dashboard extends React.Component {
               <CardHeader color="warning">
                 <h4 className={classes.cardTitleWhite}>Employees Stats</h4>
                 <p className={classes.cardCategoryWhite}>
-                  New employees on 15th September, 2016
+                  Employees tickets assignment
                 </p>
               </CardHeader>
               <CardBody>
                 <Table
                   tableHeaderColor="warning"
-                  tableHead={["ID", "Name", "Salary", "Country"]}
+                  tableHead={["ID", "Name", "Ticket", "Status"]}
                   tableData={[
-                    ["1", "Dakota Rice", "$36,738", "Niger"],
-                    ["2", "Minerva Hooper", "$23,789", "Curaçao"],
-                    ["3", "Sage Rodriguez", "$56,142", "Netherlands"],
-                    ["4", "Philip Chaney", "$38,735", "Korea, South"]
+                    ["1", "Chuangxin Xia", "#4324", "WIP"],
+                    ["2", "Risheng Wang", "#3719", "WIP"],
+                    ["3", "Yifan Li", "#4325", "Testing"]
                   ]}
                 />
               </CardBody>
