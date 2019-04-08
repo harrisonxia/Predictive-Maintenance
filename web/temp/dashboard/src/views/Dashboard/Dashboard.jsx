@@ -49,9 +49,14 @@ let Chartist = require("chartist");
 class Dashboard extends React.Component {
   state = {
     id: -1,
+    last_updated: "",
     value: 0,
     curCount: 1,
     raw: [],
+    machines: {
+      1: -1,
+      2: -1
+    },
     data: {
       data: {
         // labels: [],
@@ -102,7 +107,7 @@ class Dashboard extends React.Component {
                 //   // The value where it should end
                 to: 1,
                 easing: Chartist.Svg.Easing.easeInSine
-              },
+              }
             });
           } else if (data.type === "point") {
             data.element.animate({
@@ -197,7 +202,7 @@ class Dashboard extends React.Component {
   startRealTime = () => {
     if (this.state.id === -1) {
       let i_id = setInterval(() => {
-        this.setBgChartData();
+        this.getDataLive();
       }, 5000);
       this.setState({
         id: i_id
@@ -207,15 +212,23 @@ class Dashboard extends React.Component {
       });
     }
   };
-
   pauseRealTime = () => {
     clearInterval(this.state.id);
+    const today = new Date();
+    const date = today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate();
+    const time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+    const dateTime = date + " " + time;
     this.setState({
-      id: -1
+      id: -1,
+      last_updated: dateTime,
+      machines: {
+        1: 0,
+        2: 0
+      }
     });
-    console.log('paused')
+    console.log("paused");
   };
-  setBgChartData = () => {
+  getDataLive = () => {
     if (this.state.raw.length === 0) {
       shuffleArray(raw);
       let temp = this.state;
@@ -257,48 +270,83 @@ class Dashboard extends React.Component {
       "https://ml.googleapis.com/v1/projects/sacred-cirrus-236720/models/iotcmpt733:predict",
       bodyParameters,
       config
-    ).then((response) => {
+    ).then((response0) => {
+      axios.post(
+        "https://ml.googleapis.com/v1/projects/sacred-cirrus-236720/models/iotcmpt733:predict",
+        bodyParameters0,
+        config
+      ).then((response) => {
+        axios.get(
+          "http://localhost:5000/machines"
+        ).then((node_response) => {
+          console.log(node_response);
+          this.setState({
+            machines: {
+              1: node_response.data["1"],
+              2: node_response.data["2"]
+            }
+          });
 
-      let ar = response.data.predictions[0].outputs.flat();
-      let max = Math.max(...ar);
-      let min = Math.min(...ar);
-      let temp = this.state.data;
-      temp.data.series[0] = ar;
-      temp.options.low = min + 20;
-      temp.options.high = max + 20;
-      // console.log(temp);
-      this.setState({
-        data: temp
+          let ar = response0.data.predictions[0].outputs.flat();
+          let max = Math.max(...ar);
+          let min = Math.min(...ar);
+          let temp = this.state.data;
+          temp.data.series[0] = ar;
+          temp.options.low = min + 20;
+          temp.options.high = max + 20;
+          // console.log(temp);
+          this.setState({
+            data: temp
+          });
+
+
+          ar = response.data.predictions[0].outputs.flat();
+          max = Math.max(...ar);
+          min = Math.min(...ar);
+          temp = this.state.data_0;
+          temp.data.series[0] = ar;
+          temp.options.low = min + 20;
+          temp.options.high = max + 20;
+          // console.log(temp);
+          this.setState({
+            data_0: temp
+          });
+        }).catch((error) => {
+          console.log(error);
+        });
+
+        // console.log(this.state);
+      }).catch((error) => {
+        console.log(error);
       });
       // console.log(this.state);
     }).catch((error) => {
       console.log(error);
     });
-    axios.post(
-      "https://ml.googleapis.com/v1/projects/sacred-cirrus-236720/models/iotcmpt733:predict",
-      bodyParameters0,
-      config
-    ).then((response) => {
 
-      let ar = response.data.predictions[0].outputs.flat();
-      let max = Math.max(...ar);
-      let min = Math.min(...ar);
-      let temp = this.state.data_0;
-      temp.data.series[0] = ar;
-      temp.options.low = min + 20;
-      temp.options.high = max + 20;
-      // console.log(temp);
-      this.setState({
-        data_0: temp
-      });
-      // console.log(this.state);
-    }).catch((error) => {
-      console.log(error);
-    });
+
   };
 
   render() {
     const { classes } = this.props;
+
+    function getLiveTime(machine, last_updated) {
+      let h = Math.floor(machine / 3600);
+      let m = Math.floor(machine % 3600 / 60);
+      let s = Math.floor(machine % 3600 % 60);
+      if (machine === -1) {
+        return "[NOT LIVE]";
+      } else if (machine === 0) {
+        return "[PAUSED] Chart and live data last updated at " + last_updated;
+      } else if (machine < 60) {
+        return "[LIVE] for " + s + " seconds";
+      } else if (machine < 3600) {
+        return "[LIVE] for " + m + " minutes and " + s + " seconds";
+      } else {
+        return "[LIVE] for " + h + " hours " + m + " minutes" + " and " + s + " seconds";
+      }
+    }
+
     // svm.OneClassSVM.fit(this.state.data.data.series)
     return (
       <div>
@@ -407,7 +455,7 @@ class Dashboard extends React.Component {
                 />
               </CardHeader>
               <CardBody>
-                <h4 className={classes.cardTitle}>Machine #1 Status [LIVE]</h4>
+                <h4 className={classes.cardTitle}>Machine #1 Status: {getLiveTime(this.state.machines["1"], this.state.last_updated)}</h4>
                 <p className={classes.cardCategory}>
                   Live Prediction
                 </p>
@@ -431,7 +479,7 @@ class Dashboard extends React.Component {
                 />
               </CardHeader>
               <CardBody>
-                <h4 className={classes.cardTitle}>Machine #2 Status [LIVE]</h4>
+                <h4 className={classes.cardTitle}>Machine #2 Status: {getLiveTime(this.state.machines["2"], this.state.last_updated)}</h4>
                 <p className={classes.cardCategory}>
                   Live Prediction
                 </p>
