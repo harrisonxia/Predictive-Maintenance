@@ -1,8 +1,7 @@
 // ##############################
 // // // Tasks for TasksCard - see Dashboard view
 // #############################
-let token = 'ya29.GqUB5AZ0w5_yleGjYkl0i_mIE48MMCaEP_yCSbwb8GpJkj2EhYaAOpp00u5MqFKo_0_6dyeu-2yfMubf3c_sTrgeVE_AObkqxgQjMiAO5i7cW4KTNFf6UjSsV1BU26kjWHoLBkwPJWJagSx3WJXf7GKkXlzB4aiyTpXr8baiAXcGpYZ0O' +
-  'sjXe4sKepC1Rrq4R4wH2YMI3x7W8RnX-eGenx5mjUrZNyal'
+let token = 'ya29.GqUB5QbVidvD7PLp__9xyyBuNQTwZzEm8eYsZMp6e0ZYY7CzBMq73z__0fCNrtKWynyacQxk46RW7vB0a7w0yyzyxFJNmanyV_2eHwWLPGmE3GLi4vBP2bNmXlMAkJ4HxtR1LxQDNAcdVJioDAjaDHvCBbHJTY5pShLAmwBnEP8MZesXc6GEFjldCrTwEKLAdOM7ytGfCZuGynAh8sjgfJaKl1yfS279'
 let bugs = [
   'Arm Robot 1 status monthly check"',
   "Arm Robot 3 motor oil refill",

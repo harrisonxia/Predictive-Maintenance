@@ -45,12 +45,88 @@ import { raw, shuffleArray } from "../../variables/data.jsx";
 
 let Chartist = require("chartist");
 
+
 class Dashboard extends React.Component {
   state = {
+    id: -1,
     value: 0,
     curCount: 1,
     raw: [],
     data: {
+      data: {
+        // labels: [],
+        series: [[]]
+      },
+      options: {
+        targetLine: {
+          value: 100,
+          class: "ct-target-line"
+        },
+        lineSmooth: Chartist.Interpolation.cardinal({
+          tension: 0
+        }),
+        low: -100,
+        high: 200,
+        chartPadding: {
+          top: 0,
+          right: 0,
+          bottom: 0,
+          left: 0
+        },
+        height: "250px"
+      },
+      animation: {
+        draw: function(data) {
+          // console.log(data)
+          if (data.type === "line" || data.type === "area") {
+            data.element.animate({
+              // d: {
+              //   begin: (data.index + 1) * 80,
+              //   dur: 600,
+              //   from: data.path
+              //     .clone()
+              //     .scale(1, 0)
+              //     .translate(0, data.chartRect.height())
+              //     .stringify(),
+              //   to: data.path.clone().stringify(),
+              //   easing: Chartist.Svg.Easing.easeOutQuint
+              //   // easing: Chartist.Svg.Easing.easeInSine
+              // }
+              opacity: {
+                //   // The delay when we like to start the animation
+                begin: 0,
+                //   // Duration of the animation
+                dur: 7000,
+                //   // The value where the animation should start
+                from: 0,
+                //   // The value where it should end
+                to: 1,
+                easing: Chartist.Svg.Easing.easeInSine
+              },
+            });
+          } else if (data.type === "point") {
+            data.element.animate({
+              opacity: {
+                begin: (data.index + 1) * 20,
+                dur: 1,
+                from: 0,
+                to: 1,
+                easing: "ease"
+              },
+              x1: {
+                begin: (data.index + 1) * 25,
+                dur: 5,
+                from: data.x - 30,
+                to: data.x,
+                // You can specify an easing function name or use easing functions from Chartist.Svg.Easing directly
+                easing: Chartist.Svg.Easing.easeOutQuart
+              }
+            });
+          }
+        }
+      }
+    },
+    data_0: {
       data: {
         // labels: [],
         series: [[]]
@@ -72,7 +148,6 @@ class Dashboard extends React.Component {
         draw: function(data) {
           // console.log(data)
           if (data.type === "line" || data.type === "area") {
-            console.log(data);
             data.element.animate({
               d: {
                 begin: (data.index + 1) * 80,
@@ -119,7 +194,27 @@ class Dashboard extends React.Component {
   handleChangeIndex = index => {
     this.setState({ value: index });
   };
-  //
+  startRealTime = () => {
+    if (this.state.id === -1) {
+      let i_id = setInterval(() => {
+        this.setBgChartData();
+      }, 5000);
+      this.setState({
+        id: i_id
+      }, function() {
+        console.log("start live prediction");
+        // console.log(this.state.id)
+      });
+    }
+  };
+
+  pauseRealTime = () => {
+    clearInterval(this.state.id);
+    this.setState({
+      id: -1
+    });
+    console.log('paused')
+  };
   setBgChartData = () => {
     if (this.state.raw.length === 0) {
       shuffleArray(raw);
@@ -128,10 +223,7 @@ class Dashboard extends React.Component {
       this.setState({
         raw: temp.raw
       });
-    } else {
-      let temp = this.state.raw.splice(-100, 100);
     }
-
     const config = {
       headers: {
         "Authorization": "Bearer " + token,
@@ -139,17 +231,26 @@ class Dashboard extends React.Component {
       }
     };
 
-    let ls = [];
+    let ls = [], ls0 = [];
+    this.state.raw.splice(-100, 100);
     let tempLast10 = this.state.raw.slice(-100);
+    this.state.raw.splice(-100, 100);
+    let temp0Last10 = this.state.raw.slice(-100);
     for (let i = 0; i < 100; i++) {
-      let temp = [];
+      let temp = [], temp0 = [];
       temp.push(tempLast10[i]);
+      temp0.push(temp0Last10[i]);
       ls.push(temp);
+      ls0.push(temp0);
     }
     // console.log(ls);
     const bodyParameters = {
       "signature_name": "serving_default",
       "instances": [{ "X": ls }]
+    };
+    const bodyParameters0 = {
+      "signature_name": "serving_default",
+      "instances": [{ "X": ls0 }]
     };
     // raw = raw.slice(0, raw.length-10)
     axios.post(
@@ -161,8 +262,6 @@ class Dashboard extends React.Component {
       let ar = response.data.predictions[0].outputs.flat();
       let max = Math.max(...ar);
       let min = Math.min(...ar);
-      console.log(max, min);
-      // console.log(ar.flat());
       let temp = this.state.data;
       temp.data.series[0] = ar;
       temp.options.low = min + 20;
@@ -175,23 +274,27 @@ class Dashboard extends React.Component {
     }).catch((error) => {
       console.log(error);
     });
-    // d3.json("https://swapi.co/api/people/" + this.state.curCount).then((res) => {
-    //   // this.curCount++;
-    //   // console.log(this.curCount);
-    //   let temp = this.state.data;
-    //   // temp.data.labels.push(res.name)
-    //   temp.data.series[0].push(res.height);
-    //   // console.log(temp);
-    //   this.setState({
-    //     data: temp,
-    //     curCount: this.state.curCount + 1
-    //   });
-    //   // console.log(this.state);
-    //   // d.push(res);
-    //   // drawChart(d);
-    // }).catch(reason => {
-    //   console.error(reason);
-    // });
+    axios.post(
+      "https://ml.googleapis.com/v1/projects/sacred-cirrus-236720/models/iotcmpt733:predict",
+      bodyParameters0,
+      config
+    ).then((response) => {
+
+      let ar = response.data.predictions[0].outputs.flat();
+      let max = Math.max(...ar);
+      let min = Math.min(...ar);
+      let temp = this.state.data_0;
+      temp.data.series[0] = ar;
+      temp.options.low = min + 20;
+      temp.options.high = max + 20;
+      // console.log(temp);
+      this.setState({
+        data_0: temp
+      });
+      // console.log(this.state);
+    }).catch((error) => {
+      console.log(error);
+    });
   };
 
   render() {
@@ -199,6 +302,22 @@ class Dashboard extends React.Component {
     // svm.OneClassSVM.fit(this.state.data.data.series)
     return (
       <div>
+        <Button
+          tag="label"
+          className='butt'
+          color="success"
+          id="sentReq"
+          size="lg"
+          onClick={() => this.startRealTime()}
+        >Start Live</Button>
+        <Button
+          tag="label"
+          className='butt'
+          color="danger"
+          id="sentReqq"
+          size="lg"
+          onClick={() => this.pauseRealTime()}
+        >Pause Live</Button>
         <GridContainer>
           <GridItem xs={12} sm={6} md={3}>
             <Card>
@@ -278,7 +397,7 @@ class Dashboard extends React.Component {
         <GridContainer>
           <GridItem xs={12} sm={12} md={12}>
             <Card chart>
-              <CardHeader color="danger">
+              <CardHeader color="success">
                 <ChartistGraph
                   className="ct-chart"
                   data={this.state.data.data}
@@ -288,7 +407,7 @@ class Dashboard extends React.Component {
                 />
               </CardHeader>
               <CardBody>
-                <h4 className={classes.cardTitle}>Live Machine Status</h4>
+                <h4 className={classes.cardTitle}>Machine #1 Status [LIVE]</h4>
                 <p className={classes.cardCategory}>
                   Live Prediction
                 </p>
@@ -297,14 +416,30 @@ class Dashboard extends React.Component {
                 <div className={classes.stats}>
                   <AccessTime/> last update seconds ago.
                 </div>
-                <Button
-                  tag="label"
-                  className='butt'
-                  color="info"
-                  id="sentReq"
-                  size="sm"
-                  onClick={() => this.setBgChartData()}
-                >click</Button>
+              </CardFooter>
+            </Card>
+          </GridItem>
+          <GridItem xs={12} sm={12} md={12}>
+            <Card chart>
+              <CardHeader color="info">
+                <ChartistGraph
+                  className="ct-chart"
+                  data={this.state.data_0.data}
+                  type="Line"
+                  options={this.state.data_0.options}
+                  listener={this.state.data_0.animation}
+                />
+              </CardHeader>
+              <CardBody>
+                <h4 className={classes.cardTitle}>Machine #2 Status [LIVE]</h4>
+                <p className={classes.cardCategory}>
+                  Live Prediction
+                </p>
+              </CardBody>
+              <CardFooter chart>
+                <div className={classes.stats}>
+                  <AccessTime/> last update seconds ago.
+                </div>
               </CardFooter>
             </Card>
           </GridItem>
