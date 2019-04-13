@@ -3,9 +3,31 @@ var express = require("express"),
   port = process.env.PORT || 5000,
   bodyParser = require("body-parser");
 
+var cors = require('cors');
+
+
+const {JWT} = require('google-auth-library');
+const keys = require('./jwt.key.json');
+
+async function check() {
+  const client = new JWT(
+    keys.client_email,
+    null,
+    keys.private_key,
+    ['https://www.googleapis.com/auth/cloud-platform'],
+  );
+  const url = `https://www.googleapis.com/dns/v1/projects/${keys.project_id}`;
+  const res = await client.request({url});
+  console.log(res.data);
+}
+
+check().catch(console.error);
+
+
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(cors());
 
 
 var routes = require("./api/routes/routes.js"); //importing route

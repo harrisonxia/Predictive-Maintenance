@@ -14,21 +14,21 @@ const dashboardRoutes = [
     name: "Dashboard",
     icon: Dashboard,
     component: DashboardPage,
-    layout: "/admin"
+    layout: "/crouching_tigers/admin"
   },
   {
     path: "/user",
     name: "User Profile",
     icon: Person,
     component: UserProfile,
-    layout: "/admin"
+    layout: "/crouching_tigers/admin"
   },
   {
     path: "/maps",
     name: "Maps",
     icon: LocationOn,
     component: Maps,
-    layout: "/admin"
+    layout: "/crouching_tigers/admin"
   },
 ];
 

@@ -277,7 +277,7 @@ class Dashboard extends React.Component {
         config
       ).then((response) => {
         axios.get(
-          "http://localhost:5000/machines"
+          "http://ec2-18-236-179-13.us-west-2.compute.amazonaws.com:5000/machines"
         ).then((node_response) => {
           console.log(node_response);
           this.setState({
