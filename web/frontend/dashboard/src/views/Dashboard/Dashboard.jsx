@@ -29,7 +29,7 @@ import CardHeader from "../../components/Card/CardHeader.jsx";
 import CardIcon from "../../components/Card/CardIcon.jsx";
 import CardBody from "../../components/Card/CardBody.jsx";
 import CardFooter from "../../components/Card/CardFooter.jsx";
-// import Bar from "../../components/bars.jsx";
+import Snackbar from "../../components/Snackbar/Snackbar.jsx";
 
 import { bugs, website, server } from "../../variables/general.jsx";
 import Button from "../../components/CustomButtons/Button";
@@ -37,17 +37,18 @@ import {
   dailySalesChart,
   emailsSubscriptionChart
 } from "../../variables/charts.jsx";
-import * as d3 from "d3";
 import dashboardStyle from "../../assets/jss/material-dashboard-react/views/dashboardStyle.jsx";
 import axios from "axios";
 import { token } from "../../variables/general.jsx";
 import { raw, shuffleArray } from "../../variables/data.jsx";
+import AddAlert from "@material-ui/icons/AddAlert";
 
 let Chartist = require("chartist");
 
 
 class Dashboard extends React.Component {
   state = {
+    notification: false,
     id: -1,
     last_updated: "",
     value: 0,
@@ -164,7 +165,6 @@ class Dashboard extends React.Component {
                   .stringify(),
                 to: data.path.clone().stringify(),
                 easing: Chartist.Svg.Easing.easeOutQuint
-                //   // easing: Chartist.Svg.Easing.easeInSine
               }
               // opacity: {
               //   // The delay when we like to start the animation
@@ -192,13 +192,7 @@ class Dashboard extends React.Component {
       }
     }
   };
-  handleChange = (event, value) => {
-    this.setState({ value });
-  };
 
-  handleChangeIndex = index => {
-    this.setState({ value: index });
-  };
   startRealTime = () => {
     if (this.state.id === -1) {
       let i_id = setInterval(() => {
@@ -208,7 +202,6 @@ class Dashboard extends React.Component {
         id: i_id
       }, function() {
         console.log("start live prediction");
-        // console.log(this.state.id)
       });
     }
   };
@@ -256,37 +249,31 @@ class Dashboard extends React.Component {
       ls.push(temp);
       ls0.push(temp0);
     }
-    // console.log(ls);
     const bodyParameters = {
       "signature_name": "serving_default",
       "instances": [{ "X": ls }]
     };
-    const bodyParameters0 = {
-      "signature_name": "serving_default",
-      "instances": [{ "X": ls0 }]
-    };
-    // raw = raw.slice(0, raw.length-10)
-    axios.post(
-      "https://ml.googleapis.com/v1/projects/sacred-cirrus-236720/models/iotcmpt733:predict",
+    axios.get(
+      "http://ec2-18-236-179-13.us-west-2.compute.amazonaws.com:5000/machines",
       bodyParameters,
       config
-    ).then((response0) => {
+    ).then((node_response) => {
+      this.setState({
+        machines: {
+          1: node_response.data["1"],
+          2: node_response.data["2"]
+        }
+      });
       axios.post(
         "https://ml.googleapis.com/v1/projects/sacred-cirrus-236720/models/iotcmpt733:predict",
-        bodyParameters0,
+        bodyParameters,
         config
       ).then((response) => {
-        axios.get(
-          "http://ec2-18-236-179-13.us-west-2.compute.amazonaws.com:5000/machines"
-        ).then((node_response) => {
-          console.log(node_response);
-          this.setState({
-            machines: {
-              1: node_response.data["1"],
-              2: node_response.data["2"]
-            }
-          });
-
+        axios.post(
+          "https://ml.googleapis.com/v1/projects/sacred-cirrus-236720/models/iotcmpt733:predict",
+          bodyParameters,
+          config
+        ).then((response0) => {
           let ar = response0.data.predictions[0].outputs.flat();
           let max = Math.max(...ar);
           let min = Math.min(...ar);
@@ -294,11 +281,9 @@ class Dashboard extends React.Component {
           temp.data.series[0] = ar;
           temp.options.low = min + 20;
           temp.options.high = max + 20;
-          // console.log(temp);
           this.setState({
             data: temp
           });
-
 
           ar = response.data.predictions[0].outputs.flat();
           max = Math.max(...ar);
@@ -307,22 +292,89 @@ class Dashboard extends React.Component {
           temp.data.series[0] = ar;
           temp.options.low = min + 20;
           temp.options.high = max + 20;
-          // console.log(temp);
           this.setState({
             data_0: temp
           });
         }).catch((error) => {
           console.log(error);
         });
-
         // console.log(this.state);
       }).catch((error) => {
         console.log(error);
+        this.setState({
+          notification: true
+        });
+        // return <SnackbarContent
+        //   message={
+        //     'PRIMARY - This is a regular notification made with color="primary"'
+        //   }
+        //   close
+        //   color="primary"
+        // />
       });
       // console.log(this.state);
     }).catch((error) => {
       console.log(error);
     });
+    //
+    //
+    // axios.post(
+    //   "https://ml.googleapis.com/v1/projects/sacred-cirrus-236720/models/iotcmpt733:predict",
+    //   bodyParameters,
+    //   config
+    // ).then((response0) => {
+    //   axios.post(
+    //     "https://ml.googleapis.com/v1/projects/sacred-cirrus-236720/models/iotcmpt733:predict",
+    //     bodyParameters,
+    //     config
+    //   ).then((response) => {
+    //     axios.get(
+    //       "http://ec2-18-236-179-13.us-west-2.compute.amazonaws.com:5000/machines"
+    //     ).then((node_response) => {
+    //       console.log(node_response);
+    //       this.setState({
+    //         machines: {
+    //           1: node_response.data["1"],
+    //           2: node_response.data["2"]
+    //         }
+    //       });
+    //
+    //       let ar = response0.data.predictions[0].outputs.flat();
+    //       let max = Math.max(...ar);
+    //       let min = Math.min(...ar);
+    //       let temp = this.state.data;
+    //       temp.data.series[0] = ar;
+    //       temp.options.low = min + 20;
+    //       temp.options.high = max + 20;
+    //       // console.log(temp);
+    //       this.setState({
+    //         data: temp
+    //       });
+    //
+    //
+    //       ar = response.data.predictions[0].outputs.flat();
+    //       max = Math.max(...ar);
+    //       min = Math.min(...ar);
+    //       temp = this.state.data_0;
+    //       temp.data.series[0] = ar;
+    //       temp.options.low = min + 20;
+    //       temp.options.high = max + 20;
+    //       // console.log(temp);
+    //       this.setState({
+    //         data_0: temp
+    //       });
+    //     }).catch((error) => {
+    //       console.log(error);
+    //     });
+    //
+    //     // console.log(this.state);
+    //   }).catch((error) => {
+    //     console.log(error);
+    //   });
+    //   // console.log(this.state);
+    // }).catch((error) => {
+    //   console.log(error);
+    // });
 
 
   };
@@ -331,9 +383,9 @@ class Dashboard extends React.Component {
     const { classes } = this.props;
 
     function getLiveTime(machine, last_updated) {
-      let h = Math.floor(machine / 3600);
-      let m = Math.floor(machine % 3600 / 60);
-      let s = Math.floor(machine % 3600 % 60);
+      let h = Math.floor(machine / 3600).toString();
+      let m = Math.floor(machine % 3600 / 60).toString();
+      let s = Math.floor(machine % 3600 % 60).toString();
       if (machine === -1) {
         return "[NOT LIVE]";
       } else if (machine === 0) {
@@ -350,6 +402,15 @@ class Dashboard extends React.Component {
     // svm.OneClassSVM.fit(this.state.data.data.series)
     return (
       <div>
+        <Snackbar
+          place="tc"
+          color="danger"
+          icon={AddAlert}
+          message="Hi, our Google Cloud temporary token has expired unfortunately. Only communicating with Node server on AWS for live machine heartbeat check now. Contact us for support or check video demo at https://youtu.be/beyPiOhJXwg?t=127"
+          open={this.state.notification}
+          closeNotification={() => this.setState({ notification: false })}
+          close
+        />
         <Button
           tag="label"
           className='butt'
@@ -455,7 +516,8 @@ class Dashboard extends React.Component {
                 />
               </CardHeader>
               <CardBody>
-                <h4 className={classes.cardTitle}>Machine #1 Status: {getLiveTime(this.state.machines["1"], this.state.last_updated)}</h4>
+                <h4 className={classes.cardTitle}>Machine #1
+                  Status: {getLiveTime(this.state.machines["1"], this.state.last_updated)}</h4>
                 <p className={classes.cardCategory}>
                   Live Prediction
                 </p>
@@ -479,7 +541,8 @@ class Dashboard extends React.Component {
                 />
               </CardHeader>
               <CardBody>
-                <h4 className={classes.cardTitle}>Machine #2 Status: {getLiveTime(this.state.machines["2"], this.state.last_updated)}</h4>
+                <h4 className={classes.cardTitle}>Machine #2
+                  Status: {getLiveTime(this.state.machines["2"], this.state.last_updated)}</h4>
                 <p className={classes.cardCategory}>
                   Live Prediction
                 </p>
