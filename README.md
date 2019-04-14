@@ -1,5 +1,8 @@
 # End-to-End Solution For IoT devices Predictive Maintenance and Management
 
+## Goal
+- Our ultimate goal is to build a non-exclusive end-to-end IoT device predictive maintenance and management solution, from on-field devices all the way to a web console. The solution should be easy-to-use, flexible for all devices, and scalable to accommodate future growth.
+
 ## Live
 - <https://www.devxia.com/crouching_tigers> 
 
@@ -9,20 +12,17 @@
 ## Report
 - `report.pdf`
 
-## Goal
-- Our ultimate goal is to build a non-exclusive end-to-end IoT device predictive maintenance and management solution, from on-field devices all the way to a web console. The solution should be easy-to-use, flexible for all devices, and scalable to accommodate future growth.
-
 ## Repository structure
-- `iot_project.ipynb`: the main code for our project, including modules for:
+- `code/iot_project.ipynb`: the main code for our project, including modules for:
   1. Data ETL/EDA
   2. Model Training
   3. Model Testing
   4. Anomaly Detection Fitting/Testing
   5. Plot
-- `project_iot.py`: old models using pyspark machine learning pipeline and DecisionTree classification algorithm for the project. Discarded in the latest modules
-- `LinearRegression.py/LogisticRegression.py/options_regression.py`: similar to project_iot.py, but using different regression algorithms
-- `AnomalyDetection.ipynb`: Test code for anomaly detection
-- `FeatureSelection.ipynb`: Test code for feature selection
+- `code/project_iot.py`: old models using pyspark machine learning pipeline and DecisionTree classification algorithm for the project. Discarded in the latest modules
+- `code/LinearRegression.py/LogisticRegression.py/options_regression.py`: similar to project_iot.py, but using different regression algorithms
+- `code/AnomalyDetection.ipynb`: Test code for anomaly detection using different dataset
+- `code/FeatureSelection.ipynb`: Test code for feature selection using different dataset
 - `model`: saved model exported from Tensorflow, deployed on Google Cloud Machine Learning Engine.
 - `web/node_server`: Proof of concept Node.js server that simulate on-field device uptime and heartbeat
     * See more instruction at `web/node_server/README.md`
