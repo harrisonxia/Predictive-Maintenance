@@ -3,7 +3,7 @@
 - `yarn start` to run
 
 ## Live
-- <https://www.devxia.com/crouching_tigers> 
+- <http://www.devxia.com/crouching_tigers> 
 
 ## Files worth looking at
 - `web/frontend/dashboard/src/views/Dashboard/Dashboard.jsx` is where most of our visualization and frontend logic live

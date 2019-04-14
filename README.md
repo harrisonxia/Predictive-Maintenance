@@ -4,7 +4,7 @@
 - Our ultimate goal is to build a non-exclusive end-to-end IoT device predictive maintenance and management solution, from on-field devices all the way to a web console. The solution should be easy-to-use, flexible for all devices, and scalable to accommodate future growth.
 
 ## Live
-- <https://www.devxia.com/crouching_tigers> 
+- <http://www.devxia.com/crouching_tigers> 
 
 ## Video Presentation
 - <https://youtu.be/beyPiOhJXwg>
@@ -31,6 +31,6 @@
     * Example REST API endpoint: `GET` http://ec2-18-236-179-13.us-west-2.compute.amazonaws.com:5000/machines
 - `web/frontend`: Proof of concept React frontend dashboard
     * See more instruction at `web/frontend/README.md`
-    * Deployed on https://www.devxia.com/crouching_tigers
+    * Deployed on http://www.devxia.com/crouching_tigers
     * Template starter by Creative Tim (https://www.creative-tim.com)
     * Commnunicate with model deployed on Google Cloud Machine Learning Engine and Node.js server on AWS.

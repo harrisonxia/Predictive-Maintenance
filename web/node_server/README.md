@@ -3,7 +3,7 @@
 - `npm run start` to run
 
 ## Live
-- <https://www.devxia.com/crouching_tigers> 
+- <http://www.devxia.com/crouching_tigers> 
 
 ## Video demo
 - <https://youtu.be/beyPiOhJXwg?t=127>
