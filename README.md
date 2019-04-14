@@ -5,6 +5,7 @@
 
 ## Live
 - <http://www.devxia.com/crouching_tigers> 
+- Please use http instead of https. AWS EC2 does not provide SSL certificates.
 
 ## Video Presentation
 - <https://youtu.be/beyPiOhJXwg>
