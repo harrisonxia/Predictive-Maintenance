@@ -24,6 +24,7 @@
 - `code/AnomalyDetection.ipynb`: Test code for anomaly detection using different dataset
 - `code/FeatureSelection.ipynb`: Test code for feature selection using different dataset
 - `model`: saved model exported from Tensorflow, deployed on Google Cloud Machine Learning Engine.
+- `dataset/demo_data.zip`: The raw dataset we actually used for final result.
 - `web/node_server`: Proof of concept Node.js server that simulate on-field device uptime and heartbeat
     * See more instruction at `web/node_server/README.md`
     * Deployed on AWS
